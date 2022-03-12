@@ -8,12 +8,15 @@ using System.Threading.Tasks;
 
 namespace Mapster.Protobuff
 {
-    internal class ReadFromOsm
+    internal class ReadFromProto
     {
 
-        private static ReadFromOsm? _instance;
-        private static object _lock = new();
-        public static ReadFromOsm Instance
+        private static ReadFromProto? _instance;
+        private static readonly object _lock = new();
+        /// <summary>
+        /// The Singleton Instance
+        /// </summary>
+        public static ReadFromProto Instance
         {
             get
             {
@@ -24,7 +27,7 @@ namespace Mapster.Protobuff
                     {
                         if (_instance == null)
                         {
-                            _instance = new ReadFromOsm();
+                            _instance = new ReadFromProto();
                         }
                     }
                 }
@@ -36,16 +39,29 @@ namespace Mapster.Protobuff
         public delegate void VoidDelegate();
         public delegate void DoubleDelegate(double value);
 
-
+        /// <summary>
+        /// Event that is fired when the read finishes
+        /// </summary>
         public event VoidDelegate? FinishedEvent;
+        /// <summary>
+        /// Event that is fired with the percent of all bytes finished
+        /// </summary>
         public event DoubleDelegate? SetValueEvent;
         #endregion
 
-        private ReadFromOsm() { }
+        /// <summary>
+        /// Private constructor, for singleton
+        /// </summary>
+        private ReadFromProto() { }
 
 
         #region Deflaters
-        public static async Task<byte[]> ZLibDeflate(byte[] input)
+        /// <summary>
+        /// Deflates a byte array that is inflated with zlib
+        /// </summary>
+        /// <param name="input">The byte array to be deflated</param>
+        /// <returns>The deflated byte array</returns>
+        private static async Task<byte[]> ZLibDeflate(byte[] input)
         {
             MemoryStream output = new();
             using (ZLibStream dstream = new(new MemoryStream(input), CompressionMode.Decompress))
@@ -56,16 +72,18 @@ namespace Mapster.Protobuff
         }
         #endregion
 
+        /// <summary>
+        /// Searches the Data folder for .pbf files and parses them
+        /// </summary>
+        /// <returns></returns>
         public async Task LoadProtos()
         {
             DirectoryInfo dir = new("Data/");
 
-            var files = dir.GetFiles();
+            var files = dir.GetFiles().Where(f => f.Extension == ".pbf").ToArray();
 
             double totalLength = files.Sum(f => f.Length);
             Log.Information("Found {0} files to load for a total of {1}", files.Length, Utils.Utils.BytesToString(totalLength));
-
-            // loading screen should be completed after all of this is done
 
             double finishedBytes = 0;
 

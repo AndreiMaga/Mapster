@@ -28,8 +28,8 @@ namespace Mapster.ViewModels
         {
             HostScreen = screen;
 
-            ReadFromOsm.Instance.SetValueEvent += SetValue;
-            ReadFromOsm.Instance.FinishedEvent += FinishedEvent;
+            ReadFromProto.Instance.SetValueEvent += SetValue;
+            ReadFromProto.Instance.FinishedEvent += FinishedEvent;
 
 
             this.WhenNavigatedToObservable().Subscribe(_ =>
@@ -37,7 +37,7 @@ namespace Mapster.ViewModels
                 IsNavigatedTo = true;
                 Task task = Task.Run(async () =>
                 {
-                    await ReadFromOsm.Instance.LoadProtos();
+                    await ReadFromProto.Instance.LoadProtos();
                 });
             });
 
