@@ -12,7 +12,7 @@ namespace Mapster.Protobuff
     {
 
         private static ReadFromOsm? _instance;
-        private static object _lock = new object();
+        private static object _lock = new();
         public static ReadFromOsm Instance
         {
             get
@@ -69,10 +69,8 @@ namespace Mapster.Protobuff
 
             double finishedBytes = 0;
 
-            for (int i = 0; i < files.Length; i++)
+            foreach (FileInfo file in files)
             {
-                FileInfo file = files[i];
-
                 Log.Information("Loading {0}", file.Name);
 
                 using FileStream sr = new FileInfo(file.FullName).OpenRead();
